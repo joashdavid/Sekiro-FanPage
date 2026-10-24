@@ -1,0 +1,952 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SEKIRO — Shadows Die Twice · Fan Tribute</title>
+<meta name="description" content="An award-style fan tribute to Sekiro: Shadows Die Twice. Hesitation is defeat.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;600;700;800&family=Space+Grotesk:wght@300;400;500&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+/* ============ BASE ============ */
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#0b0805; --bg2:#151009; --ink:#ece4d8; --dim:#8d8175; --line:rgba(236,228,216,.14);
+  --ember:#ff7a1a; --gold:#ffb347; --red:#e6392b;
+  --fd:'Shippori Mincho',serif; --fb:'Space Grotesk',sans-serif; --fm:'Space Mono',monospace;
+}
+html{scroll-behavior:auto}
+html,body{background:var(--bg);color:var(--ink);font-family:var(--fb);overflow-x:clip}
+body{line-height:1.6;-webkit-font-smoothing:antialiased}
+::selection{background:var(--ember);color:#0b0805}
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-track{background:#0b0805}
+::-webkit-scrollbar-thumb{background:#3a2a1a;border-radius:3px}
+img{display:block;max-width:100%}
+a{color:inherit;text-decoration:none}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+@media (pointer:fine){ body.has-cursor, body.has-cursor a, body.has-cursor button{cursor:none} }
+
+/* ============ OVERLAYS ============ */
+.grain{position:fixed;inset:-100%;z-index:210;pointer-events:none;opacity:.055;
+  background-image:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="300" height="300"><filter id="n"><feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="2" stitchTiles="stitch"/></filter><rect width="300" height="300" filter="url(%23n)" opacity="0.7"/></svg>');
+  animation:grain 7s steps(10) infinite}
+@keyframes grain{
+  0%,100%{transform:translate(0,0)}10%{transform:translate(-5%,-8%)}20%{transform:translate(3%,6%)}
+  30%{transform:translate(-6%,3%)}40%{transform:translate(5%,-5%)}50%{transform:translate(-3%,8%)}
+  60%{transform:translate(6%,-2%)}70%{transform:translate(-4%,4%)}80%{transform:translate(2%,-6%)}90%{transform:translate(-7%,-3%)}}
+.vignette{position:fixed;inset:0;z-index:190;pointer-events:none;
+  background:radial-gradient(ellipse at center,transparent 55%,rgba(5,3,1,.55) 100%)}
+.flash{position:fixed;inset:0;z-index:180;background:#fff;opacity:0;pointer-events:none;mix-blend-mode:screen}
+.progress{position:fixed;top:0;left:0;width:100%;height:2px;z-index:220;background:var(--ember);
+  transform:scaleX(0);transform-origin:left;box-shadow:0 0 12px rgba(255,122,26,.8)}
+
+/* ============ CURSOR ============ */
+.cursor-dot,.cursor-ring{position:fixed;top:0;left:0;pointer-events:none;z-index:300;border-radius:50%;display:none}
+body.has-cursor .cursor-dot,body.has-cursor .cursor-ring{display:block}
+.cursor-dot{width:6px;height:6px;margin:-3px 0 0 -3px;background:var(--ember)}
+.cursor-ring{width:36px;height:36px;margin:-18px 0 0 -18px;border:1px solid rgba(255,179,71,.55);
+  transition:transform .35s cubic-bezier(.2,.9,.2,1),background .35s,border-color .35s}
+.cursor-ring.active{transform:scale(1.8);border-color:var(--ember);background:rgba(255,122,26,.06)}
+.cursor-ring.labeled::after{content:attr(data-text);position:absolute;inset:0;display:grid;place-items:center;
+  font-family:var(--fm);font-size:8px;letter-spacing:.2em;color:var(--gold)}
+
+/* ============ PRELOADER ============ */
+.preloader{position:fixed;inset:0;z-index:400;background:#070402;display:grid;place-items:center;clip-path:inset(0 0 0 0)}
+.pre-inner{display:grid;justify-items:center;gap:2.2rem}
+.pre-kanji{display:flex;gap:.15em;font-family:var(--fd);font-weight:800;font-size:clamp(4rem,12vw,8rem);overflow:hidden}
+.pre-kanji span{display:inline-block;transform:translateY(120%);color:var(--ink);
+  text-shadow:0 0 40px rgba(255,122,26,.45)}
+.pre-kanji span:last-child{color:var(--ember)}
+.pre-row{display:flex;align-items:baseline;gap:1.5rem}
+.pre-count{font-family:var(--fm);font-size:.85rem;color:var(--gold)}
+.pre-label{font-family:var(--fm);font-size:.6rem;letter-spacing:.5em;color:var(--dim)}
+.pre-bar{width:min(320px,60vw);height:1px;background:var(--line)}
+.pre-bar i{display:block;height:100%;background:var(--ember);transform:scaleX(0);transform-origin:left}
+
+/* ============ NAV ============ */
+.nav{position:fixed;top:0;left:0;right:0;z-index:230;display:flex;align-items:center;justify-content:space-between;
+  padding:1.4rem 3vw;transition:transform .5s cubic-bezier(.2,.9,.2,1),background .4s;
+  mix-blend-mode:difference}
+.nav.nav-hidden{transform:translateY(-110%)}
+.nav-logo{display:flex;align-items:baseline;gap:.7rem;font-family:var(--fd);font-weight:800;font-size:1.4rem}
+.nav-logo span{font-family:var(--fm);font-size:.55rem;letter-spacing:.45em;color:var(--gold)}
+.nav-links{display:flex;gap:2.2rem}
+.nav-links a{font-family:var(--fm);font-size:.6rem;letter-spacing:.35em;color:var(--dim);transition:color .3s;position:relative}
+.nav-links a::after{content:'';position:absolute;left:0;bottom:-6px;width:100%;height:1px;background:var(--ember);
+  transform:scaleX(0);transform-origin:right;transition:transform .4s cubic-bezier(.2,.9,.2,1)}
+.nav-links a:hover{color:var(--ink)}
+.nav-links a:hover::after{transform:scaleX(1);transform-origin:left}
+.nav-menu-btn{font-family:var(--fm);font-size:.6rem;letter-spacing:.4em;padding:.6rem 0}
+@media(max-width:760px){.nav-links{display:none}}
+
+/* full-screen menu */
+.menu{position:fixed;inset:0;z-index:225;background:#080502;display:grid;place-items:center;
+  clip-path:inset(0 0 100% 0);pointer-events:none}
+body.menu-open .menu{pointer-events:auto}
+.menu-list{display:grid;gap:.4rem;justify-items:start}
+.menu-link{display:block;overflow:hidden}
+.menu-link a{display:inline-flex;align-items:baseline;gap:1.4rem;font-family:var(--fd);font-weight:800;
+  font-size:clamp(2.6rem,8vw,5.5rem);line-height:1.15;transition:color .35s}
+.menu-link a i{font-family:var(--fm);font-style:normal;font-size:.7rem;color:var(--gold);letter-spacing:.3em}
+.menu-link a:hover{color:var(--ember)}
+.menu-foot{position:absolute;bottom:2rem;left:3vw;right:3vw;display:flex;justify-content:space-between;
+  font-family:var(--fm);font-size:.55rem;letter-spacing:.3em;color:var(--dim)}
+
+/* ============ HERO ============ */
+.hero{position:relative;height:100vh;min-height:640px;overflow:hidden;display:grid}
+.hero-bg{position:absolute;inset:-12% 0;background:#0e0803}
+.hero-bg img{width:100%;height:100%;object-fit:cover;object-position:center 35%}
+.hero-shade{position:absolute;inset:0;
+  background:linear-gradient(180deg,rgba(11,8,5,.75) 0%,rgba(11,8,5,.1) 35%,rgba(11,8,5,.25) 62%,#0b0805 100%),
+             radial-gradient(60% 50% at 50% 60%,rgba(255,90,10,.18),transparent 70%)}
+#embers{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.hero-content{position:relative;z-index:2;display:grid;align-content:center;justify-items:center;gap:1.6rem;
+  padding:0 3vw;text-align:center}
+.hero-eyebrow{font-family:var(--fm);font-size:.6rem;letter-spacing:.55em;color:var(--gold)}
+.hero-title{font-family:var(--fd);font-weight:800;font-size:clamp(4.2rem,16.5vw,14.5rem);line-height:.95;
+  letter-spacing:-.01em;text-shadow:0 0 60px rgba(255,110,20,.35)}
+.hero-title .ch{display:inline-block;overflow:hidden;vertical-align:top}
+.hero-title .ch-in{display:inline-block}
+.hero-tagline{font-family:var(--fd);font-weight:700;font-size:clamp(.8rem,2vw,1.15rem);letter-spacing:.65em;
+  color:transparent;-webkit-text-stroke:1px rgba(236,228,216,.75);text-indent:.65em}
+.hero-rule{width:min(520px,70vw);height:1px;background:linear-gradient(90deg,transparent,var(--ember),transparent)}
+.jp-vert{position:absolute;right:3.2vw;top:50%;transform:translateY(-50%);z-index:2;writing-mode:vertical-rl;
+  font-family:var(--fd);font-weight:700;font-size:clamp(1.1rem,2.2vw,1.7rem);letter-spacing:.5em;color:var(--dim)}
+.hero-foot{position:absolute;left:0;right:0;bottom:0;z-index:2;display:flex;align-items:flex-end;
+  justify-content:space-between;padding:1.6rem 3vw;font-family:var(--fm);font-size:.55rem;
+  letter-spacing:.3em;color:var(--dim)}
+.hero-foot .mid{display:flex;flex-direction:column;align-items:center;gap:.6rem;color:var(--gold)}
+.scroll-line{width:1px;height:52px;background:var(--line);position:relative;overflow:hidden}
+.scroll-line::after{content:'';position:absolute;left:0;top:-40%;width:100%;height:40%;
+  background:var(--ember);animation:scrollDrop 1.8s cubic-bezier(.65,0,.35,1) infinite}
+@keyframes scrollDrop{to{top:110%}}
+@media(max-width:760px){.hero-foot .right{display:none}.jp-vert{display:none}}
+
+/* ============ MARQUEE ============ */
+.marquee{border-block:1px solid var(--line);padding:1.1rem 0;overflow:hidden;background:#0d0904}
+.marquee-track{display:flex;width:max-content;will-change:transform}
+.marquee-chunk{display:flex;align-items:center;gap:2.4rem;padding-right:2.4rem;font-family:var(--fd);font-weight:700;
+  font-size:clamp(.85rem,1.6vw,1.1rem);letter-spacing:.3em;white-space:nowrap;color:var(--dim)}
+.marquee-chunk i{color:var(--ember);font-style:normal}
+.marquee-chunk em{font-style:normal;color:transparent;-webkit-text-stroke:1px rgba(236,228,216,.5)}
+
+/* ============ SECTION COMMONS ============ */
+section{position:relative}
+.wrap{max-width:1500px;margin:0 auto;padding:0 3vw}
+.sec-head{display:flex;align-items:flex-end;justify-content:space-between;gap:2rem;margin-bottom:clamp(3rem,7vw,6rem)}
+.sec-index{font-family:var(--fm);font-size:.6rem;letter-spacing:.4em;color:var(--gold);margin-bottom:1rem;display:block}
+.sec-title{font-family:var(--fd);font-weight:800;font-size:clamp(2.6rem,7.5vw,6.5rem);line-height:1.02}
+.sec-title .outline{color:transparent;-webkit-text-stroke:1px rgba(236,228,216,.6)}
+.sec-jp{font-family:var(--fd);font-weight:700;color:var(--dim);font-size:clamp(1rem,2vw,1.5rem);letter-spacing:.4em;white-space:nowrap}
+.hr{height:1px;background:var(--line);transform:scaleX(0);transform-origin:left}
+
+/* ============ STORY ============ */
+.story{padding:clamp(6rem,12vw,11rem) 0}
+.story-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:clamp(2.5rem,6vw,6rem);align-items:start}
+.story-copy p{font-size:clamp(1.05rem,1.7vw,1.45rem);line-height:1.75;font-weight:300;margin-bottom:2rem}
+.story-copy .wr .w{opacity:.12;display:inline-block}
+.story-copy .accent{color:var(--ember)}
+.story-media{position:relative}
+.media{position:relative;overflow:hidden;background:
+  linear-gradient(160deg,#2a0e05 0%,#54220a 45%,#120705 100%)}
+.media::after{content:'';position:absolute;inset:0;box-shadow:inset 0 0 80px rgba(0,0,0,.55);pointer-events:none}
+.media img{width:100%;height:100%;object-fit:cover;filter:saturate(.9) contrast(1.06);
+  transition:transform .8s cubic-bezier(.2,.9,.2,1),filter .8s}
+.media:hover img{transform:scale(1.05);filter:saturate(1.05) contrast(1.08)}
+.kanji-mark{position:absolute;inset:0;display:grid;place-items:center;font-family:var(--fd);font-weight:800;
+  font-size:clamp(4rem,9vw,8rem);color:rgba(236,228,216,.14);z-index:0;pointer-events:none}
+.media img{position:relative;z-index:1}
+.lazy{opacity:0;transform:scale(1.06);filter:blur(18px) saturate(.8);transition:opacity 1s ease,transform 1.2s cubic-bezier(.2,.9,.2,1),filter 1s ease}
+.lazy.loaded{opacity:1;transform:scale(1);filter:blur(0) saturate(.9) contrast(1.06)}
+.story-media .media{aspect-ratio:4/5}
+.media-caption{margin-top:1rem;font-family:var(--fm);font-size:.55rem;letter-spacing:.3em;color:var(--dim);
+  display:flex;justify-content:space-between}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);border-block:1px solid var(--line);margin-top:clamp(4rem,8vw,7rem)}
+.stat{padding:2.2rem 1rem;border-left:1px solid var(--line);text-align:center}
+.stat:first-child{border-left:0}
+.stat b{display:block;font-family:var(--fd);font-weight:800;font-size:clamp(1.9rem,4.5vw,3.6rem);color:var(--ink)}
+.stat b em{font-style:normal;color:var(--ember)}
+.stat span{font-family:var(--fm);font-size:.55rem;letter-spacing:.3em;color:var(--dim)}
+@media(max-width:860px){.story-grid{grid-template-columns:1fr}.stats{grid-template-columns:repeat(2,1fr)}
+  .stat:nth-child(3){border-left:0}.stat{border-top:1px solid var(--line)}.stat:nth-child(-n+2){border-top:0}}
+
+/* ============ BOSSES (horizontal) ============ */
+.bosses{height:100vh;min-height:640px;display:flex;flex-direction:column;justify-content:center;
+  background:linear-gradient(180deg,var(--bg) 0%,#0e0904 100%);overflow:hidden}
+.bosses .wrap{width:100%}
+.bosses-track{display:flex;gap:clamp(1.2rem,2.5vw,2.5rem);padding-left:3vw;will-change:transform}
+.boss-card{flex:0 0 auto;width:clamp(300px,36vw,480px)}
+.boss-num{font-family:var(--fm);font-size:.6rem;letter-spacing:.35em;color:var(--gold);margin-bottom:.8rem}
+.boss-card .media{aspect-ratio:3/4}
+.boss-info{padding-top:1.2rem;display:grid;gap:.35rem}
+.boss-info h3{font-family:var(--fd);font-weight:800;font-size:clamp(1.4rem,2.4vw,2.1rem);line-height:1.1}
+.boss-jp{font-family:var(--fd);color:var(--ember);font-size:.95rem;letter-spacing:.3em}
+.boss-loc{font-size:.85rem;color:var(--dim);font-weight:300}
+.boss-threat{font-family:var(--fm);font-size:.55rem;letter-spacing:.25em;color:var(--dim);margin-top:.5rem}
+.boss-threat b{color:var(--gold);font-weight:400}
+.boss-endcap{flex:0 0 auto;width:min(60vw,700px);display:grid;place-content:center;gap:1.4rem;padding-right:8vw}
+.boss-endcap p{font-family:var(--fd);font-weight:800;font-size:clamp(2rem,5vw,4rem);line-height:1.15}
+.boss-endcap p span{color:transparent;-webkit-text-stroke:1px rgba(236,228,216,.55)}
+.boss-endcap a{font-family:var(--fm);font-size:.6rem;letter-spacing:.35em;color:var(--gold)}
+.boss-progress{height:1px;background:var(--line);margin:3rem 3vw 0}
+.boss-progress i{display:block;height:100%;background:var(--ember);transform:scaleX(0);transform-origin:left}
+@media(max-width:859px){
+  .bosses{height:auto;padding:5rem 0}
+  .bosses-track{flex-direction:column;padding-right:3vw}
+  .boss-card{width:100%}
+  .boss-endcap{width:100%;padding:3rem 0 0}
+  .boss-progress{display:none}
+}
+
+/* ============ COMBAT ============ */
+.combat{padding:clamp(6rem,12vw,11rem) 0;overflow:hidden}
+.combat-grid{display:grid;grid-template-columns:1fr 1fr;gap:clamp(2.5rem,6vw,6rem);align-items:center}
+.combat-copy p{color:var(--dim);font-weight:300;max-width:46ch;margin-bottom:2.2rem}
+.combat-list{display:grid;gap:0;border-top:1px solid var(--line)}
+.combat-list li{display:flex;justify-content:space-between;gap:1rem;padding:.9rem 0;border-bottom:1px solid var(--line);
+  font-family:var(--fm);font-size:.6rem;letter-spacing:.25em;color:var(--dim)}
+.combat-list li b{color:var(--ink);font-weight:400}
+.combat-stage{position:relative;min-height:64vh;display:grid;place-items:center;overflow:hidden;
+  border:1px solid var(--line);background:radial-gradient(60% 60% at 50% 55%,rgba(255,110,20,.07),transparent 70%),#0d0904}
+.posture-wrap{position:absolute;top:1.6rem;left:1.6rem;right:1.6rem;display:grid;gap:.5rem}
+.posture-label{font-family:var(--fm);font-size:.5rem;letter-spacing:.35em;color:var(--dim)}
+.posture{height:6px;background:rgba(236,228,216,.08);border:1px solid var(--line)}
+.posture-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--ember),var(--red));
+  box-shadow:0 0 14px rgba(255,80,20,.7)}
+.deflect-btn{width:clamp(150px,18vw,210px);aspect-ratio:1;border-radius:50%;border:1px solid rgba(255,179,71,.4);
+  display:grid;place-content:center;gap:.4rem;justify-items:center;font-family:var(--fm);letter-spacing:.3em;
+  font-size:.75rem;color:var(--ink);transition:border-color .3s,background .3s,box-shadow .3s;user-select:none}
+.deflect-btn .jp{font-family:var(--fd);font-size:1.3rem;letter-spacing:.4em;color:var(--ember);text-indent:.4em}
+.deflect-btn:hover{border-color:var(--ember);background:rgba(255,122,26,.06);box-shadow:0 0 60px rgba(255,110,20,.25)}
+.deflect-hint{position:absolute;bottom:1.6rem;left:0;right:0;text-align:center;font-family:var(--fm);
+  font-size:.5rem;letter-spacing:.35em;color:var(--dim)}
+.spark{position:absolute;width:7px;height:2px;border-radius:2px;pointer-events:none;z-index:5}
+.shock{position:absolute;width:44px;height:44px;margin:-22px 0 0 -22px;border-radius:50%;pointer-events:none;
+  border:2px solid rgba(255,190,110,.85);z-index:4}
+.deathblow{position:absolute;inset:0;display:grid;place-items:center;font-family:var(--fd);font-weight:800;
+  font-size:clamp(2rem,6vw,4.2rem);letter-spacing:.18em;color:var(--red);opacity:0;transform:scale(.82);
+  transition:.45s cubic-bezier(.2,.9,.2,1);pointer-events:none;text-shadow:0 0 40px rgba(230,57,43,.6);z-index:6}
+.deathblow.show{opacity:1;transform:scale(1)}
+@media(max-width:860px){.combat-grid{grid-template-columns:1fr}}
+
+/* ============ TOOLS ============ */
+.tools{padding:clamp(6rem,12vw,11rem) 0;background:linear-gradient(180deg,#0e0904,var(--bg))}
+.tools-grid{display:grid;grid-template-columns:.9fr 1.1fr;gap:clamp(2.5rem,6vw,6rem)}
+.tools-desc{color:var(--dim);font-weight:300;max-width:42ch;margin-bottom:2rem}
+.tools-note{font-family:var(--fm);font-size:.55rem;letter-spacing:.3em;color:var(--gold)}
+.tools-list{list-style:none;border-top:1px solid var(--line)}
+.tool-row{display:grid;grid-template-columns:auto 1fr auto auto;align-items:center;gap:1.6rem;
+  padding:1.5rem .6rem;border-bottom:1px solid var(--line);transition:background .35s,padding .35s;position:relative}
+.tool-row:hover{background:rgba(255,122,26,.05);padding-left:1.4rem}
+.tool-index{font-family:var(--fm);font-size:.55rem;letter-spacing:.25em;color:var(--dim)}
+.tool-name{font-family:var(--fd);font-weight:800;font-size:clamp(1.3rem,2.6vw,2.2rem);transition:color .3s}
+.tool-row:hover .tool-name{color:var(--ember)}
+.tool-jp{font-family:var(--fd);color:var(--dim);font-size:.9rem;letter-spacing:.25em}
+.tool-arrow{font-family:var(--fm);color:var(--gold);opacity:0;transform:translateX(-8px);transition:.35s}
+.tool-row:hover .tool-arrow{opacity:1;transform:none}
+.tool-preview{position:fixed;top:0;left:0;width:min(300px,26vw);aspect-ratio:3/4;z-index:150;pointer-events:none;
+  opacity:0;scale:.7;overflow:hidden;border:1px solid rgba(255,179,71,.25);
+  background:linear-gradient(160deg,#2a0e05,#54220a 50%,#120705)}
+.tool-preview img{width:100%;height:100%;object-fit:cover;position:relative;z-index:1}
+.tool-preview .tp-kanji{position:absolute;inset:0;display:grid;place-items:center;font-family:var(--fd);
+  font-weight:800;font-size:5rem;color:rgba(236,228,216,.16);z-index:0}
+@media(max-width:860px){.tools-grid{grid-template-columns:1fr}.tool-preview{display:none}}
+
+/* ============ QUOTE ============ */
+.quote{padding:clamp(8rem,16vw,14rem) 3vw;text-align:center;overflow:hidden}
+.quote-jp{font-family:var(--fd);font-size:clamp(1rem,2.2vw,1.5rem);letter-spacing:.5em;color:var(--gold);margin-bottom:2.5rem}
+.quote-en{font-family:var(--fd);font-weight:800;font-size:clamp(2.8rem,9vw,8.5rem);line-height:1.05;font-weight:800}
+.q-line{display:inline-block;overflow:hidden;vertical-align:bottom}
+.q-line span{display:inline-block}
+.quote cite{display:block;margin-top:2.5rem;font-family:var(--fm);font-style:normal;font-size:.6rem;
+  letter-spacing:.4em;color:var(--dim)}
+
+/* ============ FOOTER ============ */
+footer{border-top:1px solid var(--line);padding:clamp(4rem,8vw,7rem) 3vw 2rem;overflow:hidden}
+.footer-top{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:2rem;margin-bottom:clamp(3rem,7vw,6rem)}
+.footer-top h2{font-family:var(--fd);font-weight:800;font-size:clamp(1.8rem,4.5vw,3.4rem)}
+.footer-top h2 span{color:var(--ember)}
+.rise-btn{font-family:var(--fm);font-size:.65rem;letter-spacing:.4em;padding:1.1rem 2.6rem;
+  border:1px solid rgba(255,179,71,.4);border-radius:99px;transition:background .3s,color .3s,border-color .3s}
+.rise-btn:hover{background:var(--ember);border-color:var(--ember);color:#0b0805}
+.footer-big{font-family:var(--fd);font-weight:800;font-size:clamp(4rem,17vw,16rem);line-height:.9;text-align:center;
+  color:transparent;-webkit-text-stroke:1px rgba(236,228,216,.14);user-select:none}
+.footer-bottom{display:flex;flex-wrap:wrap;justify-content:space-between;gap:1rem;margin-top:2.5rem;
+  font-family:var(--fm);font-size:.5rem;letter-spacing:.2em;color:var(--dim)}
+.footer-bottom a{color:var(--gold)}
+
+@media (prefers-reduced-motion:reduce){
+  .grain,.scroll-line::after{animation:none}
+  *{scroll-behavior:auto}
+}
+</style>
+</head>
+<body>
+
+<!-- overlays -->
+<div class="grain" aria-hidden="true"></div>
+<div class="vignette" aria-hidden="true"></div>
+<div class="flash" aria-hidden="true"></div>
+<div class="progress" aria-hidden="true"></div>
+<div class="cursor-dot" aria-hidden="true"></div>
+<div class="cursor-ring" aria-hidden="true" data-text=""></div>
+
+<!-- preloader -->
+<div class="preloader" aria-hidden="true">
+  <div class="pre-inner">
+    <div class="pre-kanji"><span>隻</span><span>狼</span></div>
+    <div class="pre-row"><span class="pre-count">000</span><span class="pre-label">SHADOWS DIE TWICE</span></div>
+    <div class="pre-bar"><i></i></div>
+  </div>
+</div>
+
+<!-- menu -->
+<div class="menu" aria-hidden="true">
+  <nav class="menu-list">
+    <div class="menu-link"><a href="#story" data-scroll><i>01</i> The Story</a></div>
+    <div class="menu-link"><a href="#bosses" data-scroll><i>02</i> The Hunted</a></div>
+    <div class="menu-link"><a href="#combat" data-scroll><i>03</i> Combat</a></div>
+    <div class="menu-link"><a href="#tools" data-scroll><i>04</i> Prosthetic</a></div>
+  </nav>
+  <div class="menu-foot"><span>隻狼 — FAN TRIBUTE</span><span>HESITATION IS DEFEAT</span></div>
+</div>
+
+<!-- nav -->
+<nav class="nav">
+  <a class="nav-logo" href="#top" data-scroll>隻狼<span>SEKIRO</span></a>
+  <div class="nav-links">
+    <a href="#story" data-scroll data-hover>STORY</a>
+    <a href="#bosses" data-scroll data-hover>BOSSES</a>
+    <a href="#combat" data-scroll data-hover>COMBAT</a>
+    <a href="#tools" data-scroll data-hover>TOOLS</a>
+  </div>
+  <button class="nav-menu-btn" data-hover aria-label="Toggle menu">MENU</button>
+</nav>
+
+<!-- HERO -->
+<header class="hero" id="top">
+  <div class="hero-bg">
+    <img class="lazy" data-src="assets/hero.png" alt="The One-Armed Wolf before the burning Hirata Estate">
+  </div>
+  <div class="hero-shade"></div>
+  <canvas id="embers"></canvas>
+  <span class="jp-vert">隻腕の狼</span>
+  <div class="hero-content">
+    <p class="hero-eyebrow">FROMSOFTWARE × ACTIVISION — GAME OF THE YEAR 2019</p>
+    <h1 class="hero-title" aria-label="SEKIRO">SEKIRO</h1>
+    <div class="hero-rule"></div>
+    <p class="hero-tagline">SHADOWS DIE TWICE</p>
+  </div>
+  <div class="hero-foot">
+    <span class="left">影は二度死ぬ</span>
+    <!-- <span class="mid">SCROLL<span class="scroll-line"></span></span> -->
+    <span class="right">01 — HIRATA ESTATE, IN FLAMES</span>
+  </div>
+</header>
+
+<!-- MARQUEE -->
+<div class="marquee" aria-hidden="true">
+  <div class="marquee-track">
+    <div class="marquee-chunk">HESITATION IS DEFEAT <i>◆</i> 躊躇わば敗れる <i>◆</i> <em>ONE-ARMED WOLF</em> <i>◆</i> 隻腕の狼 <i>◆</i> <em>SHADOWS DIE TWICE</em> <i>◆</i> 影は二度死ぬ <i>◆</i></div>
+    <div class="marquee-chunk">HESITATION IS DEFEAT <i>◆</i> 躊躇わば敗れる <i>◆</i> <em>ONE-ARMED WOLF</em> <i>◆</i> 隻腕の狼 <i>◆</i> <em>SHADOWS DIE TWICE</em> <i>◆</i> 影は二度死ぬ <i>◆</i></div>
+  </div>
+</div>
+
+<!-- STORY -->
+<section class="story" id="story">
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <span class="sec-index">01 — THE STORY</span>
+        <h2 class="sec-title" data-clip>A WOLF BOUND<br><span class="outline">BY BLOOD &amp; HONOR</span></h2>
+      </div>
+      <span class="sec-jp">戦国の末</span>
+    </div>
+    <div class="story-grid">
+      <div class="story-copy">
+        <p class="wr">In the twilight of a shattered Sengoku Japan, a nameless shinobi is bound by an oath — and by the Dragon's Blood that will not let him die. His young lord is taken. His arm is severed. His name, forgotten.</p>
+        <p class="wr">They call him the One-Armed Wolf. And the Wolf <span class="accent">does not hesitate.</span></p>
+        <p class="wr">Carve a path through Ashina's war-torn lands. Study every blade that seeks your neck. Deflect, counter, and die — as many times as it takes. For death is not the end of the Wolf's tale. It is the beginning.</p>
+      </div>
+      <figure class="story-media" data-parallax>
+        <div class="media">
+          <span class="kanji-mark">戦</span>
+          <img class="lazy" data-src="assets/story.png" alt="The Wolf overlooking Ashina">
+        </div>
+        <figcaption class="media-caption"><span>ASHINA PROVINCE — LATE 1500s</span><span>FIG. 01</span></figcaption>
+      </figure>
+    </div>
+    <div class="stats">
+      <div class="stat"><b><span data-count="10">0</span><em>M+</em></b><span>COPIES SOLD</span></div>
+      <div class="stat"><b><span data-count="2019">0</span></b><span>GAME OF THE YEAR</span></div>
+      <div class="stat"><b><span data-count="1">0</span></b><span>ARM · INFINITE WILL</span></div>
+      <div class="stat"><b><em>∞</em></b><span>RESURRECTIONS</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- BOSSES -->
+<section class="bosses" id="bosses">
+  <div class="wrap" style="margin-bottom:2.5rem">
+    <div class="sec-head" style="margin-bottom:0">
+      <div>
+        <span class="sec-index">02 — THE HUNTED</span>
+        <h2 class="sec-title">SEVEN NIGHTS, <span class="outline">SEVEN DEATHS</span></h2>
+      </div>
+      <span class="sec-jp">獲物たち</span>
+    </div>
+  </div>
+  <div class="bosses-track">
+    <article class="boss-card" data-cursor="DUEL">
+      <p class="boss-num">BOSS / 01</p>
+      <div class="media" style="background:linear-gradient(160deg,#2a0e05,#5a230a 45%,#120705)">
+        <span class="kanji-mark">弦一郎</span><img class="lazy" data-src="assets/boss-1.png" alt="Genichiro Ashina">
+      </div>
+      <div class="boss-info"><h3>Genichiro Ashina</h3><p class="boss-jp">葦名 弦一郎</p>
+        <p class="boss-loc">Ashina Castle — Lightning of Tomoe</p>
+        <p class="boss-threat">THREAT <b>★★★★☆</b></p></div>
+    </article>
+    <article class="boss-card" data-cursor="DUEL">
+      <p class="boss-num">BOSS / 02</p>
+      <div class="media" style="background:linear-gradient(160deg,#170f1e,#3d2350 45%,#0b0610)">
+        <span class="kanji-mark">蝶</span><img class="lazy" data-src="assets/boss-2.png" alt="Lady Butterfly">
+      </div>
+      <div class="boss-info"><h3>Lady Butterfly</h3><p class="boss-jp">蝴 蝶</p>
+        <p class="boss-loc">Hirata Estate — Halls of Illusion</p>
+        <p class="boss-threat">THREAT <b>★★★★☆</b></p></div>
+    </article>
+    <article class="boss-card" data-cursor="DUEL">
+      <p class="boss-num">BOSS / 03</p>
+      <div class="media" style="background:linear-gradient(160deg,#12190c,#2c3a16 45%,#0a0d06)">
+        <span class="kanji-mark">猿</span><img class="lazy" data-src="assets/boss-3.png" alt="Guardian Ape">
+      </div>
+      <div class="boss-info"><h3>Guardian Ape</h3><p class="boss-jp">獅子猿</p>
+        <p class="boss-loc">Sunken Valley — The Beast of the Bog</p>
+        <p class="boss-threat">THREAT <b>★★★☆☆</b></p></div>
+    </article>
+    <article class="boss-card" data-cursor="DUEL">
+      <p class="boss-num">BOSS / 04</p>
+      <div class="media" style="background:linear-gradient(160deg,#1d1305,#4d3410 45%,#0f0903)">
+        <span class="kanji-mark">梟</span><img class="lazy" data-src="assets/boss-4.png" alt="Great Shinobi Owl">
+      </div>
+      <div class="boss-info"><h3>Great Shinobi Owl</h3><p class="boss-jp">薄刃の梟</p>
+        <p class="boss-loc">Hirata Estate — The Father's Shadow</p>
+        <p class="boss-threat">THREAT <b>★★★★★</b></p></div>
+    </article>
+    <article class="boss-card" data-cursor="DUEL">
+      <p class="boss-num">BOSS / 05</p>
+      <div class="media" style="background:linear-gradient(160deg,#16222e,#2e4560 45%,#0a0f16)">
+        <span class="kanji-mark">桜龍</span><img class="lazy" data-src="assets/boss-5.png" alt="Divine Dragon">
+      </div>
+      <div class="boss-info"><h3>Divine Dragon</h3><p class="boss-jp">桜龍</p>
+        <p class="boss-loc">Fountainhead Palace — Origin of Immortality</p>
+        <p class="boss-threat">THREAT <b>★★☆☆☆</b></p></div>
+    </article>
+    <article class="boss-card" data-cursor="DUEL">
+      <p class="boss-num">BOSS / 06</p>
+      <div class="media" style="background:linear-gradient(160deg,#260b06,#611d10 45%,#100503)">
+        <span class="kanji-mark">剣聖</span><img class="lazy" data-src="assets/boss-6.png" alt="Isshin the Sword Saint">
+      </div>
+      <div class="boss-info"><h3>Sword Saint Isshin</h3><p class="boss-jp">剣聖 葦名一心</p>
+        <p class="boss-loc">Ashina Castle — The Final Duel</p>
+        <p class="boss-threat">THREAT <b>★★★★★</b></p></div>
+    </article>
+    <div class="boss-endcap">
+      <p>獲物は<br><span>もういない。</span></p>
+      <p style="font-size:clamp(1rem,2vw,1.5rem);color:var(--dim)">Nothing left to hunt — almost.</p>
+      <a href="#combat" data-scroll data-hover>CONTINUE ↓</a>
+    </div>
+  </div>
+  <div class="boss-progress"><i></i></div>
+</section>
+
+<!-- COMBAT -->
+<section class="combat" id="combat">
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <span class="sec-index">03 — COMBAT</span>
+        <h2 class="sec-title" data-clip>DEFLECT<br><span class="outline">OR DIE</span></h2>
+      </div>
+      <span class="sec-jp">弾き一閃</span>
+    </div>
+    <div class="combat-grid">
+      <div class="combat-copy">
+        <p data-reveal>There are no shields in Ashina. Rhythm is your only armor — strike <b style="color:var(--ink)">deflect</b> at the instant of impact to crush an enemy's posture, then finish it with a deathblow. Miss the beat, and your own blade answers for it.</p>
+        <ul class="combat-list" data-reveal>
+          <li><b>PERFECT DEFLECT</b><span>POSTURE DAMAGE</span></li>
+          <li><b>MIKIRI COUNTER</b><span>DESTROYS THRUSTS</span></li>
+          <li><b>LEAP</b><span>EVades SWEEPS</span></li>
+          <li><b>FIRECRACKER</b><span>TERRIFIES BEASTS</span></li>
+        </ul>
+      </div>
+      <div class="combat-stage" data-cursor="CLANG">
+        <div class="posture-wrap">
+          <span class="posture-label">ENEMY POSTURE — 斬り抜ける</span>
+          <div class="posture"><div class="posture-fill"></div></div>
+        </div>
+        <button class="deflect-btn" data-hover>DEFLECT<span class="jp">弾く</span></button>
+        <span class="deflect-hint">CLICK / TAP THE ARENA — 3 PERFECT DEFLECTS = DEATHBLOW</span>
+        <div class="deathblow">DEATHBLOW</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TOOLS -->
+<section class="tools" id="tools">
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <span class="sec-index">04 — PROSTHETIC</span>
+        <h2 class="sec-title">THE SHINOBI<br><span class="outline">PROSTHETIC</span></h2>
+      </div>
+      <span class="sec-jp">義手</span>
+    </div>
+    <div class="tools-grid">
+      <div>
+        <p class="tools-desc" data-reveal>A gift carved from wood, iron and vengeance. Every attachment turns a losing duel into a calculated execution — if you know when to arm it.</p>
+        <p class="tools-note" data-reveal>HOVER A ROW TO INSPECT</p>
+      </div>
+      <ul class="tools-list">
+        <li class="tool-row" data-hover data-kanji="傘" data-img="assets/tool-1.png">
+          <span class="tool-index">T-01</span><h3 class="tool-name">Loaded Umbrella</h3>
+          <span class="tool-jp">金城鉄傘</span><span class="tool-arrow">↗</span></li>
+        <li class="tool-row" data-hover data-kanji="火" data-img="assets/tool-2.png">
+          <span class="tool-index">T-02</span><h3 class="tool-name">Flame Vent</h3>
+          <span class="tool-jp">火吹</span><span class="tool-arrow">↗</span></li>
+        <li class="tool-row" data-hover data-kanji="手" data-img="assets/tool-3.png">
+          <span class="tool-index">T-03</span><h3 class="tool-name">ShurikenJutsu</h3>
+          <span class="tool-jp">手裏剣</span><span class="tool-arrow">↗</span></li>
+        <li class="tool-row" data-hover data-kanji="槍" data-img="assets/tool-4.png">
+          <span class="tool-index">T-04</span><h3 class="tool-name">Loaded Spear</h3>
+          <span class="tool-jp">長槍</span><span class="tool-arrow">↗</span></li>
+        <li class="tool-row" data-hover data-kanji="鴉" data-img="assets/tool-5.png">
+          <span class="tool-index">T-05</span><h3 class="tool-name">Mist Raven</h3>
+          <span class="tool-jp">紫霧鴉</span><span class="tool-arrow">↗</span></li>
+        <li class="tool-row" data-hover data-kanji="斧" data-img="assets/tool-6.png">
+          <span class="tool-index">T-06</span><h3 class="tool-name">Loaded Axe</h3>
+          <span class="tool-jp">鉄斧</span><span class="tool-arrow">↗</span></li>
+      </ul>
+    </div>
+  </div>
+  <div class="tool-preview"><span class="tp-kanji">傘</span><img class="tp-img" alt=""></div>
+</section>
+
+<!-- QUOTE -->
+<section class="quote">
+  <p class="quote-jp">「躊躇わずに斬れ」</p>
+  <blockquote class="quote-en">
+    <span class="q-line"><span>Hesitation</span></span>
+    <span class="q-line"><span>is defeat.</span></span>
+  </blockquote>
+  <cite>— ISSHIN ASHINA, 葦名一心</cite>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-top">
+    <h2 data-reveal>Ready to <span>die again?</span></h2>
+    <button class="rise-btn magnetic" data-scroll data-hover data-href="#top">RISE — 隻狼</button>
+  </div>
+  <div class="footer-big" aria-hidden="true" data-parallax>SEKIRO</div>
+  <div class="footer-bottom">
+    <span>© <span id="yr"></span> — UNOFFICIAL FAN TRIBUTE, MADE WITH OBSESSION</span>
+    <span>SEKIRO: SHADOWS DIE TWICE™ © FROMSOFTWARE / ACTIVISION</span>
+    <span><a href="https://www.fromsoftware.jp" target="_blank" rel="noopener" data-hover>FROMSOFTWARE</a> · <a href="https://www.activision.com" target="_blank" rel="noopener" data-hover>ACTIVISION</a></span>
+  </div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://unpkg.com/lenis@1.1.14/dist/lenis.min.js"></script>
+<script>
+/* ================= UTILS ================= */
+const q  = (s, el = document) => el.querySelector(s);
+const qa = (s, el = document) => [...el.querySelectorAll(s)];
+const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+gsap.registerPlugin(ScrollTrigger);
+ScrollTrigger.config({ ignoreMobileResize: true });
+q('#yr').textContent = new Date().getFullYear();
+
+/* ================= SMOOTH SCROLL (Lenis) ================= */
+let lenis = null;
+if (window.Lenis && !reduced) {
+  lenis = new Lenis({ lerp: 0.09, smoothWheel: true });
+  lenis.on('scroll', ScrollTrigger.update);
+  gsap.ticker.add(t => lenis.raf(t * 1000));
+  gsap.ticker.lagSmoothing(0);
+}
+function scrollToTarget(sel){
+  const target = q(sel);
+  if (!target) return;
+  if (lenis) lenis.scrollTo(target, { duration: 1.4, easing: t => 1 - Math.pow(1 - t, 4) });
+  else target.scrollIntoView({ behavior: 'smooth' });
+}
+
+/* ================= SPLIT TEXT ================= */
+function splitChars(el){
+  const text = el.textContent; el.textContent = '';
+  const frag = document.createDocumentFragment();
+  [...text].forEach(ch => {
+    const w = document.createElement('span'); w.className = 'ch';
+    const i = document.createElement('span'); i.className = 'ch-in';
+    i.textContent = ch === ' ' ? '\u00A0' : ch;
+    w.appendChild(i); frag.appendChild(w);
+  });
+  el.appendChild(frag);
+  return qa('.ch-in', el);
+}
+function splitWords(el){
+  const words = el.textContent.trim().split(/\s+/); el.textContent = '';
+  words.forEach((word, idx) => {
+    const s = document.createElement('span'); s.className = 'w'; s.textContent = word;
+    el.appendChild(s);
+    if (idx < words.length - 1) el.appendChild(document.createTextNode(' '));
+  });
+  return qa('.w', el);
+}
+
+/* ================= LAZY LOADING ================= */
+const lazyIO = new IntersectionObserver((entries, obs) => {
+  entries.forEach(en => {
+    if (!en.isIntersecting) return;
+    const img = en.target;
+    img.src = img.dataset.src;
+    img.addEventListener('load', () => {
+      img.classList.add('loaded');
+      ScrollTrigger.refresh();
+    }, { once: true });
+    img.addEventListener('error', () => img.remove(), { once: true });
+    obs.unobserve(img);
+  });
+}, { rootMargin: '300px' });
+qa('img[data-src]').forEach(img => lazyIO.observe(img));
+
+/* ================= THREE.JS — EMBER PARTICLES ================= */
+(function initEmbers(){
+  const canvas = q('#embers');
+  if (!canvas || !window.THREE) return;
+  const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: false, powerPreference: 'high-performance' });
+  renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 1.75));
+
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(60, 1, 0.1, 100);
+  camera.position.z = 12;
+
+  // soft round sprite
+  const c = document.createElement('canvas'); c.width = c.height = 64;
+  const g = c.getContext('2d');
+  const grd = g.createRadialGradient(32, 32, 0, 32, 32, 32);
+  grd.addColorStop(0, 'rgba(255,255,255,1)');
+  grd.addColorStop(.3, 'rgba(255,180,80,.85)');
+  grd.addColorStop(1, 'rgba(255,60,0,0)');
+  g.fillStyle = grd; g.fillRect(0, 0, 64, 64);
+  const sprite = new THREE.CanvasTexture(c);
+
+  const layers = [
+    { count: reduced ? 140 : 380, size: .42, opacity: .95, speed: 1   },
+    { count: reduced ? 80  : 280, size: .20, opacity: .5,  speed: .55 }
+  ].map(cfg => {
+    const N = cfg.count;
+    const pos = new Float32Array(N * 3), vel = new Float32Array(N * 2),
+          col = new Float32Array(N * 3), phase = new Float32Array(N);
+    const hot = new THREE.Color('#ff2d00'), warm = new THREE.Color('#ffc46b');
+    for (let i = 0; i < N; i++) {
+      pos[i*3] = (Math.random() - .5) * 30;
+      pos[i*3+1] = (Math.random() - .5) * 18;
+      pos[i*3+2] = (Math.random() - .5) * 6;
+      vel[i*2] = (Math.random() - .5) * .006;
+      vel[i*2+1] = (.008 + Math.random() * .02) * cfg.speed;
+      const cc = hot.clone().lerp(warm, Math.random());
+      col[i*3] = cc.r; col[i*3+1] = cc.g; col[i*3+2] = cc.b;
+      phase[i] = Math.random() * Math.PI * 2;
+    }
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+    geo.setAttribute('color', new THREE.BufferAttribute(col, 3));
+    const mat = new THREE.PointsMaterial({
+      size: cfg.size, map: sprite, transparent: true, opacity: cfg.opacity,
+      depthWrite: false, blending: THREE.AdditiveBlending, vertexColors: true, sizeAttenuation: true
+    });
+    const pts = new THREE.Points(geo, mat);
+    scene.add(pts);
+    return { pts, geo, pos, vel, phase, N, base: cfg.opacity };
+  });
+
+  let mx = 0, my = 0, visible = true, t = 0;
+  addEventListener('pointermove', e => {
+    mx = (e.clientX / innerWidth - .5) * 2;
+    my = (e.clientY / innerHeight - .5) * 2;
+  }, { passive: true });
+
+  function resize(){
+    const w = canvas.clientWidth, h = canvas.clientHeight;
+    renderer.setSize(w, h, false);
+    camera.aspect = w / h; camera.updateProjectionMatrix();
+  }
+  resize(); addEventListener('resize', resize);
+  new IntersectionObserver(en => visible = en[0].isIntersecting).observe(canvas);
+
+  const clock = new THREE.Clock();
+  gsap.ticker.add(() => {
+    if (!visible || document.hidden) return;
+    const dt = Math.min(clock.getDelta(), .05); t += dt;
+    camera.position.x += (mx * 1.1 - camera.position.x) * .03;
+    camera.position.y += (-my * .7 - camera.position.y) * .03;
+    camera.lookAt(0, 0, 0);
+    layers.forEach(L => {
+      const p = L.pos;
+      for (let i = 0; i < L.N; i++) {
+        p[i*3]   += (L.vel[i*2] + Math.sin(t * 1.5 + L.phase[i]) * .02) * 60 * dt;
+        p[i*3+1] += L.vel[i*2+1] * 60 * dt;
+        if (p[i*3+1] > 10) {
+          p[i*3+1] = -10;
+          p[i*3] = (Math.random() - .5) * 30;
+          L.vel[i*2+1] = (.008 + Math.random() * .02);
+        }
+      }
+      L.geo.attributes.position.needsUpdate = true;
+      L.pts.material.opacity = L.base * (.72 + .28 * Math.sin(t * 7 + L.phase[0]));
+    });
+    renderer.render(scene, camera);
+  });
+})();
+
+/* ================= PRELOADER + HERO INTRO ================= */
+const heroChars = splitChars(q('.hero-title'));
+gsap.set(heroChars, { yPercent: 120 });
+
+function heroIntro(){
+  const tl = gsap.timeline({ defaults: { ease: 'power4.out' } });
+  tl.fromTo('.hero-bg', { scale: 1.25 }, { scale: 1.02, duration: 2.2 }, 0)
+    .to(heroChars, { yPercent: 0, duration: 1.1, stagger: .05 }, .1)
+    .fromTo('.hero-eyebrow', { y: 24, opacity: 0 }, { y: 0, opacity: 1, duration: .8 }, .5)
+    .fromTo('.hero-rule, .hero-tagline', { y: 30, opacity: 0 }, { y: 0, opacity: 1, stagger: .1, duration: .9 }, .65)
+    .fromTo('.hero-foot > *', { y: 18, opacity: 0 }, { y: 0, opacity: 1, stagger: .08, duration: .7 }, .85)
+    .fromTo('.jp-vert', { opacity: 0, x: 24 }, { opacity: 1, x: 0, duration: 1 }, .9)
+    .fromTo('.nav', { y: -24, opacity: 0 }, { y: 0, opacity: 1, duration: .8 }, .7);
+  return tl;
+}
+(function preload(){
+  const pre = q('.preloader');
+  const cnt = { v: 0 }, cntEl = q('.pre-count');
+  const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
+  tl.to('.pre-kanji span', { yPercent: 0, duration: .9, stagger: .14 }, .2)
+    .to(cnt, { v: 100, duration: 1.7, ease: 'power2.inOut',
+        onUpdate: () => cntEl.textContent = String(Math.round(cnt.v)).padStart(3, '0') }, 0)
+    .to('.pre-bar i', { scaleX: 1, duration: 1.7, ease: 'power2.inOut' }, 0)
+    .to('.pre-kanji span, .pre-row, .pre-bar', { opacity: 0, y: -18, duration: .45, stagger: .04 }, '+=.15')
+    .to(pre, { clipPath: 'inset(0 0 100% 0)', duration: 1, ease: 'power4.inOut' }, '-=.1')
+    .set(pre, { display: 'none' })
+    .add(heroIntro(), '-=.55');
+})();
+
+/* ================= SCROLL FX ================= */
+// progress bar
+ScrollTrigger.create({
+  start: 0, end: 'max',
+  onUpdate: self => gsap.set('.progress', { scaleX: self.progress })
+});
+
+// nav hide on scroll down
+ScrollTrigger.create({
+  start: 0, end: 'max',
+  onUpdate: self => q('.nav').classList.toggle('nav-hidden', self.direction === 1 && self.scroll() > 140)
+});
+
+// hero parallax
+gsap.to('.hero-bg', {
+  yPercent: 16, ease: 'none',
+  scrollTrigger: { trigger: '.hero', start: 'top top', end: 'bottom top', scrub: true }
+});
+gsap.to('.hero-content', {
+  yPercent: -14, opacity: .2, ease: 'none',
+  scrollTrigger: { trigger: '.hero', start: 'top top', end: 'bottom top', scrub: true }
+});
+
+// generic reveals
+qa('[data-reveal]').forEach(el => {
+  gsap.fromTo(el, { y: 44, opacity: 0 },
+    { y: 0, opacity: 1, duration: 1.1, ease: 'power3.out',
+      scrollTrigger: { trigger: el, start: 'top 88%', once: true } });
+});
+
+// clip reveals for titles
+qa('[data-clip]').forEach(el => {
+  gsap.fromTo(el, { clipPath: 'inset(0 100% 0 0)' },
+    { clipPath: 'inset(0 0% 0 0)', duration: 1.3, ease: 'power4.out',
+      scrollTrigger: { trigger: el, start: 'top 85%', once: true } });
+});
+
+// word-by-word story reveal
+qa('.wr').forEach(el => {
+  const words = splitWords(el);
+  gsap.to(words, {
+    opacity: 1, stagger: .06, ease: 'none',
+    scrollTrigger: { trigger: el, start: 'top 80%', end: 'top 35%', scrub: true }
+  });
+});
+
+// parallax media / footer word
+qa('[data-parallax]').forEach(el => {
+  gsap.fromTo(el, { yPercent: -6 }, {
+    yPercent: 6, ease: 'none',
+    scrollTrigger: { trigger: el, start: 'top bottom', end: 'bottom top', scrub: true }
+  });
+});
+
+// counters
+qa('[data-count]').forEach(el => {
+  const target = parseFloat(el.dataset.count), obj = { v: 0 };
+  ScrollTrigger.create({
+    trigger: el, start: 'top 88%', once: true,
+    onEnter: () => gsap.to(obj, {
+      v: target, duration: 1.8, ease: 'power3.out',
+      onUpdate: () => el.textContent = Math.round(obj.v)
+    })
+  });
+});
+
+// quote
+gsap.fromTo('.q-line span', { yPercent: 115, skewY: 6 }, {
+  yPercent: 0, skewY: 0, duration: 1.3, stagger: .14, ease: 'power4.out',
+  scrollTrigger: { trigger: '.quote', start: 'top 70%', once: true }
+});
+gsap.fromTo('.quote-jp, .quote cite', { opacity: 0, y: 20 }, {
+  opacity: 1, y: 0, duration: 1, stagger: .15,
+  scrollTrigger: { trigger: '.quote', start: 'top 65%', once: true }
+});
+
+// marquee
+if (!reduced) gsap.to('.marquee-track', { xPercent: -50, ease: 'none', duration: 26, repeat: -1 });
+
+// horizontal bosses (desktop only)
+const mm = gsap.matchMedia();
+mm.add('(min-width: 860px)', () => {
+  const track = q('.bosses-track');
+  const dist = () => track.scrollWidth - document.documentElement.clientWidth;
+  gsap.to(track, {
+    x: () => -dist(), ease: 'none',
+    scrollTrigger: {
+      trigger: '.bosses', start: 'top top', end: () => '+=' + dist(),
+      scrub: 1, pin: true, anticipatePin: 1, invalidateOnRefresh: true,
+      onUpdate: self => gsap.set('.boss-progress i', { scaleX: self.progress })
+    }
+  });
+});
+
+/* ================= DEFLECT INTERACTION ================= */
+(function deflectGame(){
+  const stage = q('.combat-stage'), fill = q('.posture-fill'), db = q('.deathblow');
+  let posture = 0, busy = false;
+  function deflect(x, y){
+    gsap.fromTo('.flash', { opacity: .8 }, { opacity: 0, duration: .45, ease: 'power2.out' });
+    const ring = document.createElement('span'); ring.className = 'shock';
+    ring.style.left = x + 'px'; ring.style.top = y + 'px'; stage.appendChild(ring);
+    gsap.fromTo(ring, { scale: 0, opacity: .9 },
+      { scale: 7, opacity: 0, duration: .7, ease: 'power2.out', onComplete: () => ring.remove() });
+    for (let i = 0; i < 16; i++) {
+      const s = document.createElement('span'); s.className = 'spark';
+      const a = Math.random() * Math.PI * 2, d = 50 + Math.random() * 100;
+      s.style.left = x + 'px'; s.style.top = y + 'px';
+      s.style.background = Math.random() > .45 ? '#ffd9a0' : '#ff7a1a';
+      stage.appendChild(s);
+      gsap.fromTo(s, { x: 0, y: 0, opacity: 1, scale: 1 + Math.random() },
+        { x: Math.cos(a) * d, y: Math.sin(a) * d - 34, opacity: 0, scale: .2,
+          duration: .5 + Math.random() * .4, ease: 'power3.out', onComplete: () => s.remove() });
+    }
+    posture = Math.min(posture + 34, 100);
+    gsap.to(fill, { width: posture + '%', duration: .4, ease: 'power3.out' });
+    gsap.fromTo(stage, { x: -4 }, { x: 0, duration: .35, ease: 'elastic.out(1,.3)' });
+    if (posture >= 100 && !busy) {
+      busy = true; db.classList.add('show');
+      setTimeout(() => {
+        posture = 0; db.classList.remove('show');
+        gsap.to(fill, { width: '0%', duration: .6 });
+        busy = false;
+      }, 1600);
+    }
+  }
+  stage.addEventListener('pointerdown', e => {
+    const r = stage.getBoundingClientRect();
+    deflect(e.clientX - r.left, e.clientY - r.top);
+  });
+})();
+
+/* ================= TOOLS — CURSOR PREVIEW ================= */
+(function toolPreview(){
+  if (!matchMedia('(pointer:fine)').matches) return;
+  const pv = q('.tool-preview'), kanji = q('.tp-kanji'), img = q('.tp-img');
+  const xTo = gsap.quickTo(pv, 'x', { duration: .5, ease: 'power3' });
+  const yTo = gsap.quickTo(pv, 'y', { duration: .5, ease: 'power3' });
+  let shown = false;
+  addEventListener('pointermove', e => { xTo(e.clientX + 30); yTo(e.clientY - 180); }, { passive: true });
+  qa('.tool-row').forEach(row => {
+    row.addEventListener('mouseenter', () => {
+      kanji.textContent = row.dataset.kanji || '';
+      if (row.dataset.img && img.dataset.cur !== row.dataset.img) {
+        img.dataset.cur = row.dataset.img; img.src = row.dataset.img;
+        img.addEventListener('error', () => img.remove(), { once: true });
+      }
+      if (!shown) { gsap.to(pv, { opacity: 1, scale: 1, duration: .5, ease: 'power3.out' }); shown = true; }
+    });
+  });
+  q('.tools-list').addEventListener('mouseleave', () => {
+    gsap.to(pv, { opacity: 0, scale: .7, duration: .4, ease: 'power3.in' }); shown = false;
+  });
+})();
+
+/* ================= CUSTOM CURSOR ================= */
+if (matchMedia('(pointer:fine)').matches && !reduced) {
+  document.body.classList.add('has-cursor');
+  const dot = q('.cursor-dot'), ring = q('.cursor-ring');
+  const dx = gsap.quickTo(dot, 'x', { duration: .08 }), dy = gsap.quickTo(dot, 'y', { duration: .08 });
+  const rx = gsap.quickTo(ring, 'x', { duration: .38, ease: 'power3' });
+  const ry = gsap.quickTo(ring, 'y', { duration: .38, ease: 'power3' });
+  addEventListener('pointermove', e => { dx(e.clientX); dy(e.clientY); rx(e.clientX); ry(e.clientY); }, { passive: true });
+  qa('a, button, [data-hover]').forEach(el => {
+    el.addEventListener('mouseenter', () => {
+      ring.classList.add('active');
+      if (el.dataset.cursor) { ring.dataset.text = el.dataset.cursor; ring.classList.add('labeled'); }
+    });
+    el.addEventListener('mouseleave', () => ring.classList.remove('active', 'labeled'));
+  });
+}
+
+/* ================= MAGNETIC BUTTONS ================= */
+qa('.magnetic').forEach(el => {
+  el.addEventListener('mousemove', e => {
+    const r = el.getBoundingClientRect();
+    gsap.to(el, { x: (e.clientX - r.left - r.width / 2) * .35, y: (e.clientY - r.top - r.height / 2) * .35, duration: .4 });
+  });
+  el.addEventListener('mouseleave', () => gsap.to(el, { x: 0, y: 0, duration: .6, ease: 'elastic.out(1,.4)' }));
+});
+
+/* ================= MENU + SCROLL LINKS ================= */
+const menuTl = gsap.timeline({ paused: true })
+  .to('.menu', { clipPath: 'inset(0 0 0% 0)', duration: .8, ease: 'power4.inOut' })
+  .fromTo('.menu-link a', { yPercent: 130 }, { yPercent: 0, duration: .7, stagger: .07, ease: 'power3.out' }, '-=.3')
+  .fromTo('.menu-foot', { opacity: 0 }, { opacity: 1, duration: .5 }, '-=.4');
+let menuOpen = false;
+function toggleMenu(force){
+  menuOpen = force !== undefined ? force : !menuOpen;
+  document.body.classList.toggle('menu-open', menuOpen);
+  menuOpen ? menuTl.timeScale(1).play() : menuTl.timeScale(1.6).reverse();
+}
+q('.nav-menu-btn').addEventListener('click', () => toggleMenu());
+qa('[data-scroll]').forEach(a => a.addEventListener('click', e => {
+  e.preventDefault();
+  const href = a.dataset.href || a.getAttribute('href');
+  toggleMenu(false);
+  setTimeout(() => scrollToTarget(href), menuOpen ? 0 : 0);
+}));
+
+addEventListener('load', () => ScrollTrigger.refresh());
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => ScrollTrigger.refresh());
+</script>
+</body>
+</html>
